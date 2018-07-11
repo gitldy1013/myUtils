@@ -162,9 +162,9 @@ public enum MongoDBUtils {
   /**
    * 分页查询
    */
-  public MongoCursor<Document> findByPage(MongoCollection<Document> coll, Bson filter, int pageNo, int pageSize) {
+  public FindIterable findByPage(MongoCollection<Document> coll, Bson filter, int pageNo, int pageSize) {
     Bson orderBy = new BasicDBObject("_id", 1);
-    return coll.find(filter).sort(orderBy).skip((pageNo - 1) * pageSize).limit(pageSize).iterator();
+    return coll.find(filter).sort(orderBy).skip((pageNo - 1) * pageSize).limit(pageSize);
   }
 
   /**
@@ -383,8 +383,9 @@ public enum MongoDBUtils {
     MongoDBUtils instance = MongoDBUtils.INSTANCE;
 
     Bson filter = Filters.regex("name", "小*");
+    Document fetchFields = fetchFields();
     MongoCursor<Document> byPage = instance.findByPage(obj1, filter, 1,
-        10);
+        10).projection(fetchFields).iterator();
 
     while (byPage.hasNext()) {
       Document next = byPage.next();
@@ -394,4 +395,13 @@ public enum MongoDBUtils {
     System.out.println("mongoClient1==mongoClient2?" + (mongoClient1 == mongoClient2));//单利
     System.out.println("obj1==obj2?" + (obj1 == obj2));//两次查询结果
   }
+
+  //0 表示 不抽取该字段, 1 表示 抽取该字段
+  private static Document fetchFields() {
+    Document fetchFields = new Document();
+//    fetchFields.put("name", 1);//查询的结果 不返回 _id 字段
+    fetchFields.put("age", 0);//返回 chat 字段
+    return fetchFields;
+  }
+
 }
