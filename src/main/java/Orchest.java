@@ -24,6 +24,42 @@ import java.util.Set;
  * @Version: 1.0.0
  */
 public class Orchest {
+  /**
+   * 测试主函数
+   */
+  public static void main(String[] args) {
+    Map<String, List<String>> rawArrayMap = new HashMap<String, List<String>>();
+    ArrayList<String> integers1 = new ArrayList<String>();
+    integers1.add("1");
+    integers1.add("2");
+    integers1.add("3");
+    ArrayList<String> integers2 = new ArrayList<String>();
+    integers2.add("4");
+    integers2.add("5");
+    ArrayList<String> integers3 = new ArrayList<String>();
+    integers3.add("6");
+    integers3.add("7");
+    integers3.add("8");
+    ArrayList<String> integers4 = new ArrayList<String>();
+    integers4.add("9");
+    rawArrayMap.put("1", integers1);
+    rawArrayMap.put("2", integers2);
+    rawArrayMap.put("3", integers3);
+    rawArrayMap.put("4", integers4);
+    List<Map<String, String>> orchest = orchest(rawArrayMap);
+    System.out.println(orchest);
+//    List<Map<String, String>> orchestPro = orchestPro(rawArrayMap);
+//    System.out.println(orchestPro);
+    //======================================================================
+//    String result = "";
+//    String separator = ",";
+//    List<String> fn = fn(rawArrayMap, 0, result, separator);
+//    System.out.println(fn);
+    //======================================================================
+//    int[][] array = new int[][]{{1, 2, 3, 5}, {4, 5, 6}, {7, 8, 9, 10}};
+//    int[] num = new int[array.length];
+//    sort(array, array.length, 0, num);
+  }
 
   /**
    * 维元编排
@@ -48,7 +84,8 @@ public class Orchest {
     for (int i = 0; i < totalNum; i++)
       rawOrchestList.add(new LinkedHashMap<String, String>());
 
-
+    //计数器
+    int count = 0;
     Integer loopSize = 1;
     for (String key : keys) {
       //单个子单元数组
@@ -74,6 +111,7 @@ public class Orchest {
             //得到要填充数据的map
             System.out.println("得到要填充数据的map:" + (i * singleLoopNum + j * singleUnitNumPerLoop + h));
             Map<String, String> row = rawOrchestList.get(i * singleLoopNum + j * singleUnitNumPerLoop + h);
+            count++;
             //向每一层的每一个map中填入数据
             row.put(key, metaId);
           }
@@ -83,43 +121,13 @@ public class Orchest {
       System.err.println(rawOrchestList);
     }
 
+    System.err.println(count);
     return rawOrchestList;
   }
 
-  public static void main(String[] args) {
-    Map<String, List<String>> rawArrayMap = new HashMap<String, List<String>>();
-    ArrayList<String> integers1 = new ArrayList<String>();
-    integers1.add("1");
-    integers1.add("2");
-    integers1.add("3");
-    ArrayList<String> integers2 = new ArrayList<String>();
-    integers2.add("4");
-    integers2.add("5");
-    ArrayList<String> integers3 = new ArrayList<String>();
-    integers3.add("6");
-    integers3.add("7");
-    integers3.add("8");
-    ArrayList<String> integers4 = new ArrayList<String>();
-    integers4.add("9");
-    rawArrayMap.put("1", integers1);
-    rawArrayMap.put("2", integers2);
-    rawArrayMap.put("3", integers3);
-    rawArrayMap.put("4", integers4);
-//    List<Map<String, String>> orchest = orchest(rawArrayMap);
-//    System.out.println(orchest);
-    List<Map<String, String>> orchestPro = orchestPro(rawArrayMap);
-    System.out.println(orchestPro);
-    //======================================================================
-//    String result = "";
-//    String separator = ",";
-//    List<String> fn = fn(rawArrayMap, 0, result, separator);
-//    System.out.println(fn);
-    //======================================================================
-//    int[][] array = new int[][]{{1, 2, 3, 5}, {4, 5, 6}, {7, 8, 9, 10}};
-//    int[] num = new int[array.length];
-//    sort(array, array.length, 0, num);
-  }
-
+  /**
+   * 内部封装实体类
+   */
   public static class Index {
     private int index;
     private String key;
@@ -207,21 +215,28 @@ public class Orchest {
     }
     //计算时先用第一个元素加一
     indexarr[0].setIndex(-1);
-    //填充初始化数据
+    //计数器
+    int count = 0;
+    //外循环
     for (int j = 0; j < totalNum; j++) {
+      //填充空MAP容器
       rawOrchestList.add(new LinkedHashMap<String, String>());
+      //内循环
       for (String key : keys) {
         boolean flag = false;
+        //数据填充循环
         for (int i = 0; i < indexarr.length; i++) {
           if (indexarr[i].getKey().equals(key)) {
+            //每次内循环累加一次
             if (flag == false) {
               indexarr[i].setIndex(indexarr[i].getIndex() + 1);
               if (i < indexarr.length - 1) {
                 indexarr[i + 1] = indexarr[i].next;
               }
             }
+            //MAP容器填充数据
             rawOrchestList.get(j).put(key, rawArrayMap.get(indexarr[i].getKey()).get(indexarr[i].getIndex()));
-            break;
+            count++;
           }
           flag = true;
         }
@@ -229,25 +244,13 @@ public class Orchest {
       }
     }
     System.err.println(rawOrchestList.size());
+    System.err.println(count);
     return rawOrchestList;
   }
 
-  public static void sort(int[][] array, int length, int index, int[] num) {
-    if (index == length) {
-      String s = Arrays.toString(num);
-      System.out.println(s);
-      return;
-    }
-
-    for (int j = 0; j < array[index].length; j++) {//数组中的每一位遍历一次
-      num[index] = array[index][j];
-      sort(array, length, index + 1, num);
-    }
-  }
-
-
+  //===========================================================================================================
+  //以下为递归方式
   protected static List<String> fn(Map<String, List<String>> rawArrayMap, int x, String result, String separator) {
-
     List<String[]> list = new ArrayList<String[]>();
 
     Set<Map.Entry<String, List<String>>> entries = rawArrayMap.entrySet();
@@ -278,4 +281,16 @@ public class Orchest {
     return li;
   }
 
+  public static void sort(int[][] array, int length, int index, int[] num) {
+    if (index == length) {
+      String s = Arrays.toString(num);
+      System.out.println(s);
+      return;
+    }
+
+    for (int j = 0; j < array[index].length; j++) {//数组中的每一位遍历一次
+      num[index] = array[index][j];
+      sort(array, length, index + 1, num);
+    }
+  }
 }
