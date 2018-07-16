@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -395,6 +396,7 @@ public class Orchest {
       Set<String> lastLayerNodes = result.get(lastLayer);
       //创建新的结果集合
       Set<String> newLayerNodes = new HashSet<String>();
+//      Set<String> newLayerNodes = new LinkedHashSet<String>();
       //遍历上层结果集合
       for (String lastLayerNode : lastLayerNodes) {
         //遍历初始元素集合
@@ -409,7 +411,7 @@ public class Orchest {
       //将当前层的结果集合放入结果MAP
       result.put(depth, newLayerNodes);
       System.out.println(result);
-      //继续下一层递归
+      //继续下一层递归 层数加1
       fullComp(originElements, depth + 1, result);
     }
   }
