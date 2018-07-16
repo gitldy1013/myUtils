@@ -10,11 +10,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @Author: Liudongyang
@@ -46,19 +48,29 @@ public class Orchest {
     rawArrayMap.put("2", integers2);
     rawArrayMap.put("3", integers3);
     rawArrayMap.put("4", integers4);
-    List<Map<String, String>> orchest = orchest(rawArrayMap);
-    System.out.println(orchest);
+//    List<Map<String, String>> orchest = orchest(rawArrayMap);
+//    System.out.println(orchest);
 //    List<Map<String, String>> orchestPro = orchestPro(rawArrayMap);
 //    System.out.println(orchestPro);
-    //======================================================================
+    //==================================================================================================================
 //    String result = "";
 //    String separator = ",";
 //    List<String> fn = fn(rawArrayMap, 0, result, separator);
 //    System.out.println(fn);
-    //======================================================================
+    //==================================================================================================================
 //    int[][] array = new int[][]{{1, 2, 3, 5}, {4, 5, 6}, {7, 8, 9, 10}};
 //    int[] num = new int[array.length];
 //    sort(array, array.length, 0, num);
+    //==================================================================================================================
+    Set<String> origin = new TreeSet<String>();
+    origin.add("1");
+    origin.add("2");
+    origin.add("3");
+    Long depth = 0L;
+    Map<Long, Set<String>> res = new HashMap<Long, Set<String>>();
+    res.put(0L, origin);
+    fullComp(origin, depth, res);
+    System.out.println(res);
   }
 
   /**
@@ -248,6 +260,52 @@ public class Orchest {
     System.err.println(count);
     return rawOrchestList;
   }
+
+
+  /**
+   * 默认排列分隔符
+   */
+  private final static String ORCHEST_SEPERATOR = "#";
+
+  /**
+   * 递归全排列
+   */
+//{0=[#3#, #2#, #1#],
+// 1=[#3#2#, #2#3#, #3#1#, #1#3#, #2#1#, #1#2#],
+// 2=[#3#2#1#, #3#1#2#, #2#1#3#, #2#3#1#, #1#3#2#, #1#2#3#]}
+  public static void fullComp(Set<String> originElements, Long depth, Map<Long, Set<String>> result) {
+    if (originElements == null || originElements.size() <= 0 || depth < 0)
+      return;
+
+    if (depth == originElements.size()) {
+      return;
+    }
+
+    if (depth == 0) {
+      Set<String> zeroLayerNodes = new HashSet<String>();
+      for (String element : originElements)
+        zeroLayerNodes.add(ORCHEST_SEPERATOR + element + ORCHEST_SEPERATOR);
+
+      result.put(depth, zeroLayerNodes);
+      fullComp(originElements, depth + 1, result);
+    } else {
+      long lastLayer = depth - 1;
+      Set<String> lastLayerNodes = result.get(lastLayer);
+
+      Set<String> newLayerNodes = new HashSet<String>();
+      for (String lastLayerNode : lastLayerNodes) {
+        for (String element : originElements) {
+          if (!lastLayerNode.contains(ORCHEST_SEPERATOR + element + ORCHEST_SEPERATOR))
+            newLayerNodes.add(lastLayerNode + element + ORCHEST_SEPERATOR);
+        }
+      }
+
+      result.put(depth, newLayerNodes);
+      fullComp(originElements, depth + 1, result);
+    }
+  }
+
+
   //====================================================================================================================
   //以下为递归方式
   protected static List<String> fn(Map<String, List<String>> rawArrayMap, int x, String result, String separator) {
