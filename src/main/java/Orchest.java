@@ -126,7 +126,7 @@ public class Orchest {
     return rawOrchestList;
   }
 
-  //===========================================================================================================
+  //====================================================================================================================
 
   /**
    * 内部封装实体类
@@ -248,6 +248,7 @@ public class Orchest {
     System.err.println(count);
     return rawOrchestList;
   }
+  //====================================================================================================================
   //以下为递归方式
   protected static List<String> fn(Map<String, List<String>> rawArrayMap, int x, String result, String separator) {
     List<String[]> list = new ArrayList<String[]>();
