@@ -366,9 +366,9 @@ public class Orchest {
   /**
    * 递归全排列
    */
-//{0=[#3#, #2#, #1#],
-// 1=[#3#2#, #2#3#, #3#1#, #1#3#, #2#1#, #1#2#],
-// 2=[#3#2#1#, #3#1#2#, #2#1#3#, #2#3#1#, #1#3#2#, #1#2#3#]}
+  // 0=[#3#, #2#, #1#],
+  // 1=[#3#1#, #3#2#, #2#1#, #2#3#, #1#2#, #1#3#],
+  // 2=[#3#1#2#, #3#2#1#, #2#1#3#, #2#3#1#, #1#2#3#, #1#3#2#]
   public static void fullComp(Set<String> originElements, Long depth, Map<Long, Set<String>> result) {
     //非空和逻辑的严谨性判断校验
     if (originElements == null || originElements.size() <= 0 || depth < 0)
@@ -386,7 +386,6 @@ public class Orchest {
         zeroLayerNodes.add(ORCHEST_SEPERATOR + element + ORCHEST_SEPERATOR);
       //将0层结果集合放入结果MAP
       result.put(depth, zeroLayerNodes);
-      System.out.println(result);
       //递归到下一层 层数加1
       fullComp(originElements, depth + 1, result);
     } else {
@@ -395,8 +394,9 @@ public class Orchest {
       //获取上一层结果集合
       Set<String> lastLayerNodes = result.get(lastLayer);
       //创建新的结果集合
-      Set<String> newLayerNodes = new HashSet<String>();
-//      Set<String> newLayerNodes = new LinkedHashSet<String>();
+//      Set<String> newLayerNodes = new HashSet<String>();
+      //这里换成LinkedHashMap方便理解
+      Set<String> newLayerNodes = new LinkedHashSet<String>();
       //遍历上层结果集合
       for (String lastLayerNode : lastLayerNodes) {
         //遍历初始元素集合
@@ -407,10 +407,10 @@ public class Orchest {
             newLayerNodes.add(lastLayerNode + element + ORCHEST_SEPERATOR);
           }
         }
+        System.out.println(result);
       }
       //将当前层的结果集合放入结果MAP
       result.put(depth, newLayerNodes);
-      System.out.println(result);
       //继续下一层递归 层数加1
       fullComp(originElements, depth + 1, result);
     }
