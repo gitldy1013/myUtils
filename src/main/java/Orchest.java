@@ -30,6 +30,10 @@ public class Orchest {
    * 测试主函数
    */
   public static void main(String[] args) {
+    //  1,2,3
+    //  4,5
+    //  6,7,8
+    //  9
     Map<String, List<String>> rawArrayMap = new HashMap<String, List<String>>();
     ArrayList<String> integers1 = new ArrayList<String>();
     integers1.add("1");
@@ -50,8 +54,8 @@ public class Orchest {
     rawArrayMap.put("4", integers4);
 //    List<Map<String, String>> orchest = orchest(rawArrayMap);
 //    System.out.println(orchest);
-//    List<Map<String, String>> orchestPro = orchestPro(rawArrayMap);
-//    System.out.println(orchestPro);
+    List<Map<String, String>> orchestPro = orchestProPlus(rawArrayMap);
+    System.out.println(orchestPro);
     //==================================================================================================================
 //    String result = "";
 //    String separator = ",";
@@ -108,13 +112,13 @@ public class Orchest {
 
       //结果集总数/外层循环数
       int singleLoopNum = totalNum / loopSize;
-      System.err.println("singleLoopNum:" + singleLoopNum);
+//      System.err.println("singleLoopNum:" + singleLoopNum);
       //结果集总数/每层子单元个数
       int singleUnitTotalNum = totalNum / metaSize;
-      System.err.println("singleUnitTotalNum:" + singleLoopNum);
+//      System.err.println("singleUnitTotalNum:" + singleLoopNum);
 
       int singleUnitNumPerLoop = singleUnitTotalNum / loopSize;
-      System.err.println("singleUnitNumPerLoop:" + singleLoopNum);
+//      System.err.println("singleUnitNumPerLoop:" + singleLoopNum);
 
       for (int i = 0; i < loopSize; i++)
         for (int j = 0; j < metaSize; j++) {
@@ -122,7 +126,7 @@ public class Orchest {
           String metaId = metaList.get(j);
           for (int h = 0; h < singleUnitNumPerLoop; h++) {
             //得到要填充数据的map
-            System.out.println("得到要填充数据的map:" + (i * singleLoopNum + j * singleUnitNumPerLoop + h));
+//            System.out.println("得到要填充数据的map:" + (i * singleLoopNum + j * singleUnitNumPerLoop + h));
             Map<String, String> row = rawOrchestList.get(i * singleLoopNum + j * singleUnitNumPerLoop + h);
             count++;
             //向每一层的每一个map中填入数据
@@ -149,13 +153,32 @@ public class Orchest {
     private int size;
     private int arrindex;
 
+    //下一个元素
     private Index next;
+    //上一个元素
+    private Index pre;
 
     Index(int index, String key, int size, int arrindex) {
       this.index = index;
       this.key = key;
       this.size = size;
       this.arrindex = arrindex;
+    }
+
+    public Index getNext() {
+      return next;
+    }
+
+    public void setNext(Index next) {
+      this.next = next;
+    }
+
+    public Index getPre() {
+      return pre;
+    }
+
+    public void setPre(Index pre) {
+      this.pre = pre;
     }
 
     public int getArrindex() {
@@ -195,6 +218,17 @@ public class Orchest {
 
     public void setKey(String key) {
       this.key = key;
+    }
+
+    public void setPreIndex(int index) {
+      if (index >= this.size) {
+        if (this.pre != null) {
+          this.pre.setPreIndex(this.pre.getIndex() + 1);
+          this.index = 0;
+        }
+      } else {
+        this.index = index;
+      }
     }
   }
 
@@ -252,6 +286,65 @@ public class Orchest {
             count++;
           }
           flag = true;
+        }
+        System.err.println(rawOrchestList);
+      }
+    }
+    System.err.println(rawOrchestList.size());
+    System.err.println(count);
+    return rawOrchestList;
+  }
+
+  /**
+   * 优化后的全编排算法 (倒排改造)
+   */
+  //[{1=1, 2=4, 3=6, 4=9}, {1=1, 2=4, 3=7, 4=9}, {1=1, 2=4, 3=8, 4=9},
+  // {1=1, 2=5, 3=6, 4=9}, {1=1, 2=5, 3=7, 4=9}, {1=1, 2=5, 3=8, 4=9},
+  // {1=2, 2=4, 3=6, 4=9}, {1=2, 2=4, 3=7, 4=9}, {1=2, 2=4, 3=8, 4=9},
+  // {1=2, 2=5, 3=6, 4=9}, {1=2, 2=5, 3=7, 4=9}, {1=2, 2=5, 3=8, 4=9},
+  // {1=3, 2=4, 3=6, 4=9}, {1=3, 2=4, 3=7, 4=9}, {1=3, 2=4, 3=8, 4=9},
+  // {1=3, 2=5, 3=6, 4=9}, {1=3, 2=5, 3=7, 4=9}, {1=3, 2=5, 3=8, 4=9}]
+  private static List<Map<String, String>> orchestProPlus(Map<String, List<String>> rawArrayMap) {
+    //创建结果集合
+    List<Map<String, String>> rawOrchestList = new LinkedList<Map<String, String>>();
+    //循环整个map
+    Set<String> keys = rawArrayMap.keySet();
+    //初始化结果集的size
+    int totalNum = 1;
+    //记录各个元素的位置
+    Index[] indexarr = new Index[keys.size()];
+    //得到结果集中存放的元素个数
+    int ax = 0;
+    for (String key : keys) {
+      totalNum = totalNum * rawArrayMap.get(key).size();
+      Index index = new Index(0, key, rawArrayMap.get(key).size(), ax);
+      indexarr[ax++] = index;
+    }
+    for (int i = 0; i < indexarr.length - 1; i++) {
+      indexarr[i + 1].pre = indexarr[i];
+    }
+    //计数器
+    int count = 0;
+    //外循环
+    for (int j = 0; j < totalNum; j++) {
+      //填充空MAP容器
+      rawOrchestList.add(new LinkedHashMap<String, String>());
+      //内循环
+      for (String key : keys) {
+        //数据填充循环
+        for (int i = 0; i < indexarr.length; i++) {
+          if (indexarr[i].getKey().equals(key)) {
+            //每次内循环累加一次
+            if (indexarr[indexarr.length - 1].getKey().equals(key)) {
+              indexarr[i].setPreIndex(indexarr[i].getIndex() + 1);
+              if (i < indexarr.length - 1) {
+                indexarr[i + 1].pre = indexarr[i];
+              }
+            }
+            //MAP容器填充数据
+            rawOrchestList.get(j).put(key, rawArrayMap.get(indexarr[i].getKey()).get(indexarr[i].getIndex()));
+            count++;
+          }
         }
         System.err.println(rawOrchestList);
       }
