@@ -54,8 +54,10 @@ public class Orchest {
     rawArrayMap.put("4", integers4);
 //    List<Map<String, String>> orchest = orchest(rawArrayMap);
 //    System.out.println(orchest);
-    List<Map<String, String>> orchestPro = orchestProPlus(rawArrayMap);
-    System.out.println(orchestPro);
+//    List<Map<String, String>> orchestPro = orchestPro(rawArrayMap);
+//    System.out.println(orchestPro);
+//    List<Map<String, String>> orchestProPlus = orchestProPlus(rawArrayMap);
+//    System.out.println(orchestProPlus);
     //==================================================================================================================
 //    String result = "";
 //    String separator = ",";
@@ -367,33 +369,47 @@ public class Orchest {
 // 1=[#3#2#, #2#3#, #3#1#, #1#3#, #2#1#, #1#2#],
 // 2=[#3#2#1#, #3#1#2#, #2#1#3#, #2#3#1#, #1#3#2#, #1#2#3#]}
   public static void fullComp(Set<String> originElements, Long depth, Map<Long, Set<String>> result) {
+    //非空和逻辑的严谨性判断校验
     if (originElements == null || originElements.size() <= 0 || depth < 0)
       return;
-
+    //递归的弹出必要条件:层级如果和集合数相同 不再循环(例子中元素个数为三 即代表每层最多三个元素 一共递归到第三层)
     if (depth == originElements.size()) {
       return;
     }
-
+    //0层
     if (depth == 0) {
       Set<String> zeroLayerNodes = new HashSet<String>();
+      //遍历初始元素集合
       for (String element : originElements)
+        //通过遍历初始元素集合,SET中的每个元素即为一个生成的编排结果集的最小单元
         zeroLayerNodes.add(ORCHEST_SEPERATOR + element + ORCHEST_SEPERATOR);
-
+      //将0层结果集合放入结果MAP
       result.put(depth, zeroLayerNodes);
+      System.out.println(result);
+      //递归到下一层 层数加1
       fullComp(originElements, depth + 1, result);
     } else {
+      //大于0层
       long lastLayer = depth - 1;
+      //获取上一层结果集合
       Set<String> lastLayerNodes = result.get(lastLayer);
-
+      //创建新的结果集合
       Set<String> newLayerNodes = new HashSet<String>();
+      //遍历上层结果集合
       for (String lastLayerNode : lastLayerNodes) {
+        //遍历初始元素集合
         for (String element : originElements) {
-          if (!lastLayerNode.contains(ORCHEST_SEPERATOR + element + ORCHEST_SEPERATOR))
+          //判断每一个结果集合中的元素是否包含当前传入的初始元素
+          if (!lastLayerNode.contains(ORCHEST_SEPERATOR + element + ORCHEST_SEPERATOR)) {
+            //不包含即可组成新的当前层集合最小节点单元
             newLayerNodes.add(lastLayerNode + element + ORCHEST_SEPERATOR);
+          }
         }
       }
-
+      //将当前层的结果集合放入结果MAP
       result.put(depth, newLayerNodes);
+      System.out.println(result);
+      //继续下一层递归
       fullComp(originElements, depth + 1, result);
     }
   }
